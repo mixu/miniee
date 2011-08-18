@@ -1,0 +1,16 @@
+{ 
+  "name": "miniee",
+  "description": "An EventEmitter-like client and server side library for routing events w/regexps",
+  "version": "0.0.1",
+  "author": {
+    "name": "Mikito Takada",
+    "email": "mixu@mixu.net",
+    "url": "http://blog.mixu.net/"
+    },
+  "keywords": ["eventemitter"],
+  "repository": "git://github.com/mixu/miniee",
+  "main": "miniee.js",
+  "devDependencies": {
+    "async_testing": "0.3.x"
+  }
+}

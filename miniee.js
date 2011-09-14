@@ -1,7 +1,7 @@
 /**
  * MiniEE is a client and server side library for routing events.
  * Main difference from EventEmitter is that callbacks can be specified using RegExps.
- * 
+ *
  * Should work on the client and the server.
  */
 
@@ -11,7 +11,7 @@ if(typeof exports != 'undefined'){
 
 var MiniEventEmitter	= function(){ };
 
-MiniEventEmitter.prototype.on = function(expr, callback) {  
+MiniEventEmitter.prototype.on = function(expr, callback) {
   if(expr instanceof RegExp) {
     this._routes || (this._routes = []);
     this._routes.unshift([ expr, callback] );
@@ -29,7 +29,7 @@ MiniEventEmitter.prototype.once = function(event, listener) {
   var self = this;
   function removeAfter() {
     self.removeListener(event, removeAfter);
-    listener.apply(this, arguments);    
+    listener.apply(this, arguments);
   }
   self.on(event, removeAfter);
   return this;
@@ -41,13 +41,13 @@ MiniEventEmitter.prototype.removeListener	= function(expr, callback){
 //    console.log('runf', expr, callback);
     this._routes = this._routes.filter(function(value) {
 //      console.log('filter', value, !(value[0] === expr && value[1] === callback));
-      return !(value[0] === expr && value[1] === callback);      
+      return !(value[0] === expr && value[1] === callback);
     });
   } else if(this._events && this._events[expr]) {
     this._events[expr] = this._events[expr].filter(function(value) {
       return !(value === callback);
     });
-  } 
+  }
   return this;
 };
 
@@ -59,8 +59,8 @@ MiniEventEmitter.prototype.removeAllListeners = function(expr) {
   }
   if(expr instanceof RegExp && this._routes) {
     this._routes = this._routes.filter(function(value) {
-      return !(value[0] === expr);      
-    });    
+      return !(value[0] === expr);
+    });
   } else if(this._events && this._events[expr]) {
     this._events[expr] = [];
   }
@@ -76,7 +76,7 @@ MiniEventEmitter.prototype.emit = function(event /* arg .. */) {
   var args = Array.prototype.slice.call(arguments, 1);
   if(this._events && this._events[event]) {
     // must run in reverse order to ensure that removing events won't skip callbacks
-    for(var i = this._events[event].length-1; i > -1; i--){
+    for(var i = this._events[event].length-1; i > -1 && this._events[event] && this._events[event][i]; i--){
       this._events[event][i].apply(this, args);
     }
   }

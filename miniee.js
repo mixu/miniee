@@ -9,6 +9,33 @@ if(typeof exports != 'undefined'){
   var TestApp = { debug: false };
 }
 
+if (!Array.prototype.filter) {
+  Array.prototype.filter = function(fun /*, thisp */) {
+
+    if (this == null)
+      throw new TypeError();
+
+    var t = Object(this);
+    var len = t.length >>> 0;
+    if (typeof fun != "function")
+      throw new TypeError();
+
+    var res = [];
+    var thisp = arguments[1];
+    for (var i = 0; i < len; i++)
+    {
+      if (i in t)
+      {
+        var val = t[i]; // in case fun mutates this
+        if (fun.call(thisp, val, i, t))
+          res.push(val);
+      }
+    }
+
+    return res;
+  };
+}
+
 var MiniEventEmitter	= function(){ };
 
 MiniEventEmitter.prototype.on = function(expr, callback) {
@@ -38,9 +65,7 @@ MiniEventEmitter.prototype.once = function(event, listener) {
 
 MiniEventEmitter.prototype.removeListener	= function(expr, callback){
   if(expr instanceof RegExp && this._routes) {
-//    console.log('runf', expr, callback);
     this._routes = this._routes.filter(function(value) {
-//      console.log('filter', value, !(value[0] === expr && value[1] === callback));
       return !(value[0] === expr && value[1] === callback);
     });
   } else if(this._events && this._events[expr]) {

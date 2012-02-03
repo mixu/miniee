@@ -11,6 +11,6 @@
   "repository": "git://github.com/mixu/miniee",
   "main": "miniee.js",
   "devDependencies": {
-    "async_testing": "0.3.x"
+    "nodeunit-runner": "git+ssh://git@github.com:mixu/nodeunit-runner.git#master"
   }
 }

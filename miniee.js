@@ -9,34 +9,35 @@ if(typeof exports != 'undefined'){
   var TestApp = { debug: false };
 }
 
-if (!Array.prototype.filter) {
-  Array.prototype.filter = function(fun /*, thisp */) {
+var MiniEventEmitter	= function(){ };
 
-    if (this == null)
-      throw new TypeError();
-
-    var t = Object(this);
-    var len = t.length >>> 0;
-    if (typeof fun != "function")
-      throw new TypeError();
-
-    var res = [];
-    var thisp = arguments[1];
-    for (var i = 0; i < len; i++)
-    {
-      if (i in t)
-      {
-        var val = t[i]; // in case fun mutates this
-        if (fun.call(thisp, val, i, t))
-          res.push(val);
+MiniEventEmitter.prototype.each = function(obj, iterator, context) {
+  var breaker = {};
+  if (obj == null) return;
+  if (Array.prototype.forEach && obj.forEach === Array.prototype.forEach) {
+    obj.forEach(iterator, context);
+  } else if (obj.length === +obj.length) {
+    for (var i = 0, l = obj.length; i < l; i++) {
+      if (i in obj && iterator.call(context, obj[i], i, obj) === breaker) return;
+    }
+  } else {
+    for (var key in obj) {
+      if (_.has(obj, key)) {
+        if (iterator.call(context, obj[key], key, obj) === breaker) return;
       }
     }
+  }
+};
 
-    return res;
-  };
-}
-
-var MiniEventEmitter	= function(){ };
+MiniEventEmitter.prototype.filter = function(obj, iterator, context) {
+  var results = [];
+  if (obj == null) return results;
+  if (Array.prototype.filter && obj.filter === Array.prototype.filter) return obj.filter(iterator, context);
+  MiniEventEmitter.prototype.each(obj, function(value, index, list) {
+    if (iterator.call(context, value, index, list)) results[results.length] = value;
+  });
+  return results;
+};
 
 MiniEventEmitter.prototype.on = function(expr, callback) {
   if(expr instanceof RegExp) {
@@ -65,11 +66,11 @@ MiniEventEmitter.prototype.once = function(event, listener) {
 
 MiniEventEmitter.prototype.removeListener	= function(expr, callback){
   if(expr instanceof RegExp && this._routes) {
-    this._routes = this._routes.filter(function(value) {
+    this._routes = MiniEventEmitter.prototype.filter(this._routes, function(value) {
       return !(value[0] === expr && value[1] === callback);
     });
   } else if(this._events && this._events[expr]) {
-    this._events[expr] = this._events[expr].filter(function(value) {
+    this._events[expr] = MiniEventEmitter.prototype.filter(this._events[expr], function(value) {
       return !(value === callback);
     });
   }
@@ -83,7 +84,7 @@ MiniEventEmitter.prototype.removeAllListeners = function(expr) {
     return;
   }
   if(expr instanceof RegExp && this._routes) {
-    this._routes = this._routes.filter(function(value) {
+    this._routes = MiniEventEmitter.prototype.filter(this._routes, function(value) {
       return !(value[0] === expr);
     });
   } else if(this._events && this._events[expr]) {

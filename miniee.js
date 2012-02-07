@@ -59,6 +59,7 @@ MiniEventEmitter.prototype.once = function(event, listener) {
     self.removeListener(event, removeAfter);
     listener.apply(this, arguments);
   }
+  removeAfter.listener = listener;
   self.on(event, removeAfter);
   return this;
 };
@@ -67,11 +68,16 @@ MiniEventEmitter.prototype.once = function(event, listener) {
 MiniEventEmitter.prototype.removeListener	= function(expr, callback){
   if(expr instanceof RegExp && this._routes) {
     this._routes = MiniEventEmitter.prototype.filter(this._routes, function(value) {
-      return !(value[0] === expr && value[1] === callback);
+      return !(value[0].toString() == expr.toString() && (value[1] === callback ||
+          // once() events are wrapped in a removeAfter
+          (value[1].listener && value[1].listener === callback)
+      ));
     });
   } else if(this._events && this._events[expr]) {
     this._events[expr] = MiniEventEmitter.prototype.filter(this._events[expr], function(value) {
-      return !(value === callback);
+      return !(value === callback ||
+        (value.listener && value.listener === callback)
+      );
     });
   }
   return this;
@@ -85,7 +91,7 @@ MiniEventEmitter.prototype.removeAllListeners = function(expr) {
   }
   if(expr instanceof RegExp && this._routes) {
     this._routes = MiniEventEmitter.prototype.filter(this._routes, function(value) {
-      return !(value[0] === expr);
+      return !(value[0].toString() == expr.toString());
     });
   } else if(this._events && this._events[expr]) {
     this._events[expr] = [];

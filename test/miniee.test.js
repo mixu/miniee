@@ -51,21 +51,21 @@ exports['given a new miniee'] = {
     test.done();
   },
 
-  'you can set multiple listeners with the same string': function(test) {
+  'can set multiple listeners with the same string': function(test) {
     test.expect(2);
     ee.on('test', function(arg) { test.ok(arg === 'success');  } );
     ee.on('test', function(arg) { test.ok(arg === 'success'); test.done(); } );
     ee.emit('test', 'success');
   },
 
-  'you can set multiple listeners with the same regexp': function(test) {
+  'can set multiple listeners with the same regexp': function(test) {
     test.expect(2);
     ee.on(/aaa.*/, function(arg) { test.ok(arg === 'success'); } );
     ee.on(/aaa.*/, function(arg) { test.ok(arg === 'success'); test.done(); } );
     ee.emit('aaaa', 'success');
   },
 
-  'you can pass an arbitrary number of arguments on events': function(test) {
+  'can pass an arbitrary number of arguments on events': function(test) {
     test.expect(8);
     ee.on('test', function(a, b, c, d, e, f, g, h) {
       test.equal(a, 'as');
@@ -87,6 +87,25 @@ exports['given a new miniee'] = {
     ee.on(/aaa.*/, function(arg) { test.ok(arg === 'success'); console.log('2'); } );
     ee.once(/aaa.*/, function(arg) { test.ok(arg === 'success'); console.log('3'); test.done(); } );
     ee.emit('aaaa', 'success');
+  },
+
+  'a when callback is only removed when it returns true': function(test) {
+    var items = [];
+    ee.when(/aaa.*/, function(message) {
+      items.push(message);
+      return (items.length > 2);
+    });
+    ee.emit('aaaa', 1);
+    ee.emit('aaaa', 2);
+    ee.emit('aaaa', 3);
+    ee.emit('aaaa', 4);
+
+    test.ok(items.some(function(message) {return message == 1;}));
+    test.ok(items.some(function(message) {return message == 2;}));
+    test.ok(items.some(function(message) {return message == 3;}));
+    test.ok(!items.some(function(message) {return message == 4;}));
+    test.equal(3, items.length);
+    test.done();
   },
 
   'can remove a single callback by string': function(test) {

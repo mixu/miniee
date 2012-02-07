@@ -53,17 +53,28 @@ MiniEventEmitter.prototype.on = function(expr, callback) {
 
 MiniEventEmitter.prototype.addListener = MiniEventEmitter.prototype.on;
 
-MiniEventEmitter.prototype.once = function(event, listener) {
+MiniEventEmitter.prototype.once = function(event, callback) {
   var self = this;
   function removeAfter() {
     self.removeListener(event, removeAfter);
-    listener.apply(this, arguments);
+    callback.apply(this, arguments);
   }
-  removeAfter.listener = listener;
+  removeAfter.listener = callback;
   self.on(event, removeAfter);
   return this;
 };
 
+MiniEventEmitter.prototype.when = function(event, callback) {
+  var self = this;
+  function check() {
+    if(callback.apply(this, arguments)) {
+      self.removeListener(event, check);
+    }
+  }
+  check.listener = callback;
+  self.on(event, check);
+  return this;
+};
 
 MiniEventEmitter.prototype.removeListener	= function(expr, callback){
   if(expr instanceof RegExp && this._routes) {
@@ -86,7 +97,7 @@ MiniEventEmitter.prototype.removeListener	= function(expr, callback){
 MiniEventEmitter.prototype.removeAllListeners = function(expr) {
   if(arguments.length === 0) {
     this._events = {};
-    this._routes = {};
+    this._routes = [];
     return;
   }
   if(expr instanceof RegExp && this._routes) {
@@ -99,11 +110,7 @@ MiniEventEmitter.prototype.removeAllListeners = function(expr) {
   return this;
 };
 
-/**
- * Perform routing on a req, res pair from an http server.
- */
 MiniEventEmitter.prototype.emit = function(event /* arg .. */) {
-//  console.log('emit '+event);
   // check all routes for a match
   var args = Array.prototype.slice.call(arguments, 1);
   if(this._events && this._events[event]) {
@@ -121,13 +128,13 @@ MiniEventEmitter.prototype.emit = function(event /* arg .. */) {
     }
   }
   return this;
-}
+};
 
 /**
  * mixin - augment the target object with the MiniEE functions
  */
 MiniEventEmitter.mixin	= function(destObject){
-	var props	= ['on', 'removeListener', 'removeAllListeners',  'emit', 'next', 'once'];
+	var props	= ['on', 'removeListener', 'removeAllListeners',  'emit', 'next', 'once', 'when'];
 	for(var i = 0; i < props.length; i ++){
 		destObject.prototype[props[i]]	= MiniEventEmitter.prototype[props[i]];
 	}

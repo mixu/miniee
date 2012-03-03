@@ -1,7 +1,7 @@
 {
   "name": "miniee",
   "description": "An EventEmitter-like client and server side library for routing events w/regexps",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": {
     "name": "Mikito Takada",
     "email": "mixu@mixu.net",
@@ -10,7 +10,11 @@
   "keywords": ["eventemitter"],
   "repository": "git://github.com/mixu/miniee",
   "main": "miniee.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --ui exports --reporter spec --bail ./test/miniee.test.js"
+  },
   "devDependencies": {
-    "nodeunit-runner": "git+ssh://git@github.com:mixu/nodeunit-runner.git#master"
+    "mocha": "*",
+    "browserbuild": "git+ssh://git@github.com:mixu/browserbuild.git#master"
   }
 }

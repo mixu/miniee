@@ -136,5 +136,5 @@ MiniEventEmitter.mixin	= function(destObject){
 	}
 }
 
-module && module.exports = MiniEventEmitter;
+(typeof module != 'undefined') && module.exports = MiniEventEmitter;
 

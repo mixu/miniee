@@ -134,7 +134,7 @@ MiniEventEmitter.mixin	= function(destObject){
 	for(var i = 0; i < props.length; i ++){
 		destObject.prototype[props[i]]	= MiniEventEmitter.prototype[props[i]];
 	}
-}
+};
 
-(typeof module != 'undefined') && module.exports = MiniEventEmitter;
+(typeof module != 'undefined') && (module.exports = MiniEventEmitter);
 
